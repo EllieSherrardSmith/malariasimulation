@@ -90,6 +90,8 @@ create_states <- function(parameters) {
 #' * rtss_ds - short-lived antibody delay variable
 #' * rtss_dl - long-lived antibody delay variable
 #' * zeta_group - Discretised heterogeneity of human individuals
+#' * net_time - The timestep when a net was last put up (-1 if never)
+#' * spray_time - The timestep when the house was last sprayed (-1 if never)
 #'
 #' Mosquito variables are: 
 #' * variety - The variety of mosquito, either 1, 2 or 3. These are related to
@@ -237,6 +239,10 @@ create_variables <- function(parameters) {
     }
   )
 
+  # Init vector controls
+  net_time <- individual::Variable$new("net_time", function(n) rep(-1, n))
+  spray_time <- individual::Variable$new("spray_time", function(n) rep(-1, n))
+
   variables <- list(
     birth = birth,
     last_boosted_ib = last_boosted_ib,
@@ -260,7 +266,9 @@ create_variables <- function(parameters) {
     rtss_rho = rtss_rho,
     rtss_ds = rtss_ds,
     rtss_dl = rtss_dl,
-    is_severe = is_severe
+    is_severe = is_severe,
+    net_time,
+    spray_time
   )
 
   mosquito_variety <- individual::Variable$new(
@@ -324,7 +332,9 @@ create_individuals <- function(
       variables$rtss_cs,
       variables$rtss_rho,
       variables$rtss_ds,
-      variables$rtss_dl
+      variables$rtss_dl,
+      variables$net_time,
+      variables$spray_time
     ),
     events = c(
       events$infection,
